@@ -17,7 +17,7 @@ func init() {
 	fmt.Println(string(logo))
 }
 
-var config = flag.String("config", "", "the config file for rosedb")
+var config = flag.String("config", "", "the config file for fastdb")
 
 func main() {
 
@@ -35,13 +35,11 @@ func main() {
 	signal.Notify(sig, os.Interrupt, os.Kill, syscall.SIGHUP,
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
-	server, err := cmd.NewServer(cfg)
+	server, err := 
 	if err != nil {
 		log.Printf("create rosedb server err: %+v\n", err)
 		return
 	}
-
-	fmt.Println(cfg.Addr)
 
 	go server.Listen(cfg.Addr)
 
