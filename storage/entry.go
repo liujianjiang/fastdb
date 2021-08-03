@@ -37,12 +37,12 @@ type Meta struct {
 
 type Entry struct {
 	Meta      *Meta  //12
-	state     uint16 //2
-	crc32     uint32 //4
-	Timestamp uint64 //8
+	state     uint16 //2 类型
+	crc32     uint32 //4 数据校验
+	Timestamp uint64 //8 时间戳
 }
 
-func buildEntryStruct(key, value, extra []byte, state uint16, timestamp uint64) *Entry {
+func entryStruct(key, value, extra []byte, state uint16, timestamp uint64) *Entry {
 	return &Entry{
 		state: state, Timestamp: timestamp,
 		Meta: &Meta{
@@ -62,12 +62,12 @@ func (e *Entry) Size() uint32 {
 }
 
 // NewEntry create a new entry.
-func NewEntry(key, value, extra []byte, t, mark uint16) *Entry {
+func CreateEntry(key, value, extra []byte, t, mark uint16) *Entry {
 	var state uint16 = 0
 	// set type and mark.
 	state = state | (t << 8)
 	state = state | mark
-	return buildEntryStruct(key, value, extra, state, uint64(time.Now().UnixNano()))
+	return entryStruct(key, value, extra, state, uint64(time.Now().UnixNano()))
 }
 
 func (e *Entry) Encode() ([]byte, error) {
@@ -79,6 +79,8 @@ func (e *Entry) Encode() ([]byte, error) {
 	es := e.Meta.ExtraSize
 	buf := make([]byte, e.Size())
 
+	crc := crc32.ChecksumIEEE(e.Meta.Value)
+	binary.BigEndian.PutUint32(buf[0:4], crc)
 	binary.BigEndian.PutUint32(buf[4:8], ks)
 	binary.BigEndian.PutUint32(buf[8:12], vs)
 	binary.BigEndian.PutUint32(buf[12:16], es)
@@ -90,20 +92,17 @@ func (e *Entry) Encode() ([]byte, error) {
 		copy(buf[(entryHeaderSize+ks+vs):(entryHeaderSize+ks+vs+es)], e.Meta.Extra)
 	}
 
-	crc := crc32.ChecksumIEEE(e.Meta.Value)
-	binary.BigEndian.PutUint32(buf[0:4], crc)
-
 	return buf, nil
 
 }
 
 func Decode(buf []byte) (*Entry, error) {
+	crc := binary.BigEndian.Uint32(buf[0:4])
 	ks := binary.BigEndian.Uint32(buf[4:8])
 	vs := binary.BigEndian.Uint32(buf[8:12])
 	es := binary.BigEndian.Uint32(buf[12:16])
 	state := binary.BigEndian.Uint16(buf[16:18])
 	timestamp := binary.BigEndian.Uint64(buf[18:26])
-	crc := binary.BigEndian.Uint32(buf[0:4])
 
 	return &Entry{
 		Meta: &Meta{
@@ -115,4 +114,21 @@ func Decode(buf []byte) (*Entry, error) {
 		crc32:     crc,
 		Timestamp: timestamp,
 	}, nil
+}
+
+func (e *Entry) GetType() uint16 {
+	return e.state >> 8
+}
+
+func (e *Entry) GetMark() uint16 {
+	return e.state & (2<<7 - 1)
+}
+
+func NewEntryWithExpire(key, value []byte, deadline int64, t, mark uint16) *Entry {
+	var state uint16 = 0
+	// set type and mark.
+	state = state | (t << 8)
+	state = state | mark
+
+	return entryStruct(key, value, nil, state, uint64(deadline))
 }

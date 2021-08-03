@@ -5,12 +5,29 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewEntry(t *testing.T) {
 	key, val := []byte("test_key"), []byte("test_val")
 	extra := []byte("extra val")
-	_ = NewEntry(key, val, extra, String, 0)
+	_ = CreateEntry(key, val, extra, String, 0)
+}
+
+func TestEntry_GetType(t *testing.T) {
+	key, val := []byte("test_key_001"), []byte("test_val_001")
+	deadline := time.Now().Add(time.Second * 21).Unix()
+	e := NewEntryWithExpire(key, val, deadline, ZSet, 2)
+	assert.Equal(t, e.GetType(), uint16(4))
+}
+
+func TestEntry_GetMark(t *testing.T) {
+	key, val := []byte("test_key_001"), []byte("test_val_001")
+	deadline := time.Now().Add(time.Second * 21).Unix()
+	e := NewEntryWithExpire(key, val, deadline, ZSet, 15)
+	assert.Equal(t, e.GetMark(), uint16(15))
 }
 
 func TestEntry_Encode(t *testing.T) {
@@ -35,10 +52,7 @@ func TestEntry_Encode(t *testing.T) {
 
 		//写入文件为了测试下面的Decode方法
 		if encVal != nil {
-			file, err := os.OpenFile("/tmp/fastdb_encode.dat", os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				log.Fatal(err)
-			}
+			file, _ := os.OpenFile("/tmp/fastdb_test.dat", os.O_CREATE|os.O_WRONLY, 0644)
 			file.Write(encVal)
 		}
 	})
@@ -65,7 +79,7 @@ func TestEntry_Encode(t *testing.T) {
 
 func TestDecode(t *testing.T) {
 	//expected val : [169 64 25 4 0 0 0 13 0 0 0 15 116 101 115 116 95 107 101 121 95 48 48 48 49 116 101 115 116 95 118 97 108 117 101 95 48 48 48 49]
-	if file, err := os.OpenFile("/tmp/fastdb_encode.dat", os.O_RDONLY, os.ModePerm); err != nil {
+	if file, err := os.OpenFile("/tmp/fastdb_test.dat", os.O_RDONLY, os.ModePerm); err != nil {
 		t.Error("open File err ", err)
 	} else {
 		buf := make([]byte, entryHeaderSize)
