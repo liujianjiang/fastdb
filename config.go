@@ -66,7 +66,7 @@ func DefaultConfig() Config {
 		IdxMode:                KeyValueMemMode,
 		MaxKeySize:             DefaultMaxKeySize,
 		MaxValueSize:           DefaultMaxValueSize,
-		Sync:                   false,
+		Sync:                   true,
 		ReclaimThreshold:       DefaultReclaimThreshold,
 		SingleReclaimThreshold: DefaultSingleReclaimThreshold,
 	}
