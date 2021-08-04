@@ -42,7 +42,7 @@ type Entry struct {
 	Timestamp uint64 //8 时间戳
 }
 
-func entryStruct(key, value, extra []byte, state uint16, timestamp uint64) *Entry {
+func newInternal(key, value, extra []byte, state uint16, timestamp uint64) *Entry {
 	return &Entry{
 		state: state, Timestamp: timestamp,
 		Meta: &Meta{
@@ -67,7 +67,7 @@ func CreateEntry(key, value, extra []byte, t, mark uint16) *Entry {
 	// set type and mark.
 	state = state | (t << 8)
 	state = state | mark
-	return entryStruct(key, value, extra, state, uint64(time.Now().UnixNano()))
+	return newInternal(key, value, extra, state, uint64(time.Now().UnixNano()))
 }
 
 func (e *Entry) Encode() ([]byte, error) {
@@ -130,5 +130,19 @@ func NewEntryWithExpire(key, value []byte, deadline int64, t, mark uint16) *Entr
 	state = state | (t << 8)
 	state = state | mark
 
-	return entryStruct(key, value, nil, state, uint64(deadline))
+	return newInternal(key, value, nil, state, uint64(deadline))
+}
+
+// NewEntry create a new entry.
+func NewEntry(key, value, extra []byte, t, mark uint16) *Entry {
+	var state uint16 = 0
+	// set type and mark.
+	state = state | (t << 8)
+	state = state | mark
+	return newInternal(key, value, extra, state, uint64(time.Now().UnixNano()))
+}
+
+// NewEntryNoExtra create a new entry without extra info.
+func NewEntryNoExtra(key, value []byte, t, mark uint16) *Entry {
+	return NewEntry(key, value, nil, t, mark)
 }

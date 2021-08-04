@@ -9,7 +9,7 @@ import (
 	"github.com/tidwall/redcon"
 )
 
-type ExecCmdFunc func(*fastdb.FastDb, []string) (interface{}, error)
+type ExecCmdFunc func(*fastdb.FastDB, []string) (interface{}, error)
 
 var ExecCmd = make(map[string]ExecCmdFunc)
 
@@ -19,7 +19,7 @@ func addExecCommand(cmd string, cmdFunc ExecCmdFunc) {
 
 type Server struct {
 	server *redcon.Server
-	db     *fastdb.FastDb
+	db     *fastdb.FastDB
 }
 
 // 创建服务

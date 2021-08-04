@@ -1,5 +1,7 @@
 package fastdb
 
+import "fastdb/storage"
+
 // DataIndexMode the data index mode.
 type DataIndexMode int
 
