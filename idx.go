@@ -154,3 +154,26 @@ func (db *FastDB) loadIdxFromFiles() error {
 	wg.Wait()
 	return nil
 }
+
+// build hash indexes.
+func (db *FastDB) buildHashIndex(idx *index.Indexer, entry *storage.Entry) {
+	if db.hashIndex == nil || idx == nil {
+		return
+	}
+
+	key := string(idx.Meta.Key)
+	switch entry.GetMark() {
+	case HashHSet:
+		db.hashIndex.indexes.HSet(key, string(idx.Meta.Extra), idx.Meta.Value)
+	case HashHDel:
+		db.hashIndex.indexes.HDel(key, string(idx.Meta.Extra))
+	case HashHClear:
+		db.hashIndex.indexes.HClear(key)
+	case HashHExpire:
+		if entry.Timestamp < uint64(time.Now().Unix()) {
+			db.hashIndex.indexes.HClear(key)
+		} else {
+			db.expires[Hash][key] = int64(entry.Timestamp)
+		}
+	}
+}

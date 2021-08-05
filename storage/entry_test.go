@@ -13,7 +13,7 @@ import (
 func TestNewEntry(t *testing.T) {
 	key, val := []byte("test_key"), []byte("test_val")
 	extra := []byte("extra val")
-	_ = CreateEntry(key, val, extra, String, 0)
+	_ = NewEntry(key, val, extra, String, 0)
 }
 
 func TestEntry_GetType(t *testing.T) {
@@ -61,7 +61,7 @@ func TestEntry_Encode(t *testing.T) {
 	t.Run("test2", func(t *testing.T) {
 		e := &Entry{
 			Meta: &Meta{
-				Key: []byte("test_key_0001"),
+				Key: []byte("test_key_0002"),
 			},
 		}
 

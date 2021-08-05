@@ -73,6 +73,7 @@ type (
 		activeFileIds      ActiveFileIds   // Current active file ids.
 		archFiles          ArchivedFiles   // The archived files.
 		strIndex           *StrIndex       // String indexes(a skip list).
+		hashIndex          *HashIdx        // Hash indexes.
 		config             Config          // Config info of rosedb.
 		mu                 sync.RWMutex    // mutex.
 		meta               *storage.DBMeta // Meta info for rosedb.
@@ -219,6 +220,7 @@ func Open(config Config) (*FastDB, error) {
 		archFiles:     archFiles,
 		config:        config,
 		strIndex:      NewStrIdx(),
+		hashIndex:     newHashIdx(),
 		meta:          meta,
 
 		expires: make(Expires),
@@ -290,6 +292,8 @@ func (db *FastDB) buildIndex(entry *storage.Entry, idx *index.Indexer) error {
 	switch entry.GetType() {
 	case storage.String:
 		db.buildStringIndex(idx, entry)
+	case storage.Hash:
+		db.buildHashIndex(idx, entry)
 	}
 	return nil
 }

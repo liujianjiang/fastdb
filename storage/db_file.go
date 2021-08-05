@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"hash/crc32"
 	"io/ioutil"
-	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -114,7 +113,7 @@ func (df *DBFile) Read(offset int64) (e *Entry, err error) {
 	offset += int64(e.Meta.KeySize)
 	if e.Meta.ValueSize > 0 {
 		var val []byte
-		if val, err = df.readBuf(offset, int64(e.Meta.KeySize)); err != nil {
+		if val, err = df.readBuf(offset, int64(e.Meta.ValueSize)); err != nil {
 			return
 		}
 		e.Meta.Value = val
@@ -122,13 +121,14 @@ func (df *DBFile) Read(offset int64) (e *Entry, err error) {
 	//log.Println(string(e.Meta.Key))
 	offset += int64(e.Meta.ValueSize)
 	if e.Meta.ExtraSize > 0 {
-		var val []byte
-		if val, err = df.readBuf(offset, int64(e.Meta.ExtraSize)); err != nil {
+		var val2 []byte
+		if val2, err = df.readBuf(offset, int64(e.Meta.ExtraSize)); err != nil {
 			return
 		}
-		e.Meta.Extra = val
+		e.Meta.Extra = val2
 	}
-	log.Println(e.Meta.Value)
+	//log.Println(e.Meta.ValueSize)
+	//log.Println(string(e.Meta.Value))
 	checkCrc := crc32.ChecksumIEEE(e.Meta.Value)
 	if checkCrc != e.crc32 {
 		return nil, ErrInvalidCrc

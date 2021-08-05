@@ -35,7 +35,7 @@ func main() {
 	signal.Notify(sig, os.Interrupt, os.Kill, syscall.SIGHUP,
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
-	server, err := 
+	server, err := cmd.NewServer(cfg)
 	if err != nil {
 		log.Printf("create rosedb server err: %+v\n", err)
 		return

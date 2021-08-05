@@ -78,7 +78,7 @@ var commandList = [][]string{
 }
 
 var host = flag.String("h", "127.0.0.1", "the rosedb server host, default 127.0.0.1")
-var port = flag.Int("p", 6378, "the rosedb server port, default 5200")
+var port = flag.Int("p", 5200, "the rosedb server port, default 5200")
 
 const cmdHistoryPath = "/tmp/fastdb-cli"
 

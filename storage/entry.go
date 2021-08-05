@@ -56,18 +56,8 @@ func newInternal(key, value, extra []byte, state uint16, timestamp uint64) *Entr
 	}
 }
 
-// Size the entry`s total size.
 func (e *Entry) Size() uint32 {
 	return entryHeaderSize + e.Meta.KeySize + e.Meta.ValueSize + e.Meta.ExtraSize
-}
-
-// NewEntry create a new entry.
-func CreateEntry(key, value, extra []byte, t, mark uint16) *Entry {
-	var state uint16 = 0
-	// set type and mark.
-	state = state | (t << 8)
-	state = state | mark
-	return newInternal(key, value, extra, state, uint64(time.Now().UnixNano()))
 }
 
 func (e *Entry) Encode() ([]byte, error) {

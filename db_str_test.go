@@ -13,7 +13,6 @@ func TestFastDB_Set(t *testing.T) {
 		db := InitDb()
 		defer db.Close()
 
-		// both nil
 		db.Set(nil, nil)
 
 		err := db.Set([]byte("test_key"), []byte("I am roseduan"))
@@ -34,7 +33,7 @@ func TestFastDB_Set(t *testing.T) {
 		db := ReopenDb()
 		defer db.Close()
 
-		for i := 0; i < 250000; i++ {
+		for i := 0; i < 100; i++ {
 			key := "k---" + strconv.Itoa(rand.Intn(100000))
 			val := "v---" + strconv.Itoa(rand.Intn(100000))
 			err := db.Set([]byte(key), []byte(val))
@@ -61,10 +60,10 @@ func TestFastDB_Get(t *testing.T) {
 
 		t.Log(string(val))
 
-		val, _ = db.Get([]byte("test_key"))
+		val, _ = db.Get([]byte("test_key001"))
 		t.Log(string(val))
 
-		val, _ = db.Get([]byte("test_key"))
+		val, _ = db.Get([]byte("test_key002"))
 		t.Log(string(val))
 	})
 
