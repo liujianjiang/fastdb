@@ -77,7 +77,7 @@ type (
 		config             Config          // Config info of rosedb.
 		mu                 sync.RWMutex    // mutex.
 		meta               *storage.DBMeta // Meta info for rosedb.
-		expires            Expires         // Expired directory.
+		expires            Expires         // Expired directory..
 		isReclaiming       bool
 		isSingleReclaiming bool
 	}
